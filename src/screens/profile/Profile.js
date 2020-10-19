@@ -117,9 +117,9 @@ class Profile extends Component {
                         media['hashtags'] =  media.caption.match(regex);
                         media['hashtags'] =   media['hashtags']?media['hashtags'].join(' ') : ''
                         media.caption  = media.caption.replace(/#([^\s]*)/gm, '');
-                        if (sessionStorage.getItem(media.id) !== null) {
-                            console.log(sessionStorage.getItem(media.id));
-                            comments[media.id] = JSON.parse(sessionStorage.getItem(media.id));
+                        if (sessionStorage.getItem(media.id+'comment') !== null) {
+                            console.log(sessionStorage.getItem(media.id+'comment'));
+                            comments[media.id] = JSON.parse(sessionStorage.getItem(media.id+'comment'));
                         }
                     })
 
@@ -298,10 +298,11 @@ class Profile extends Component {
                         style={{width: "50px", height: "50px"}}
                     />
                     <span style={{marginLeft: "20px"}}>
-                        <div style={{width: "600px", fontSize: "big"}}> {this.state.username} <br />
-                            <div style={{float: "left", width: "200px", fontSize: "x-small"}}> Posts: {this.state.posts} </div>
-                            <div style={{float: "left", width: "200px", fontSize: "x-small"}}> Follows: {this.state.follows} </div>
-                            <div style={{float: "left", width: "200px", fontSize: "x-small"}}> Followed By: {this.state.followed_by}</div> <br />
+                        <div style={{width: "600px", fontSize: "big", marginBottom:'1rem'}}>
+                            <div style={{ fontWeight:500, marginBottom:'0.5rem'}}>   {this.state.username}</div>
+                            <div style={{float: "left", width: "200px", fontSize: "small"}}> Posts: {this.state.posts} </div>
+                            <div style={{float: "left", width: "200px", fontSize: "small"}}> Follows: {this.state.follows} </div>
+                            <div style={{float: "left", width: "200px", fontSize: "small"}}> Followed By: {this.state.followed_by}</div> <br />
                         </div>
                         <div style={{fontSize: "small"}}> {this.state.full_name}
                             <Button mini variant="fab" color="secondary" aria-label="Edit" style={{marginLeft: "20px"}} onClick={this.handleOpenEditModal}>
