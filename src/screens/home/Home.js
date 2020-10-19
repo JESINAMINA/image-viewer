@@ -77,8 +77,8 @@ class Home extends Component{
   }
 
   componentDidMount(){
-    // this.getMediaInfo();
-   this.getMediaData();
+    this.getMediaInfo();
+   // this.getMediaData();
   }
 
   render(){
