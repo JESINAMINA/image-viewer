@@ -30,7 +30,7 @@ const styles =  theme => ({
   },
   media: {
     height:0,
-    paddingTop: '56.25%', // 16:9
+    paddingTop: '56.25%',
   },
   formControl: {
     display:'flex',
@@ -124,19 +124,16 @@ class Home extends Component{
   }
 
   likeClickHandler = (id) =>{
-    console.log('like id',id);
     var foundItem = this.state.data.find((item) => {
       return item.id === id;
     })
-
     if (typeof foundItem !== undefined) {
       if (!this.state.likeSet.has(id)) {
         foundItem.likes_count++;
         this.setState(({likeSet}) => ({
           likeSet:new Set(likeSet.add(id))
         }))
-        console.log(this.state.newLike)
-        console.log(this.state.likeSet)
+
       }else {
         foundItem.likes_count--;
         this.setState(({likeSet}) =>{
@@ -147,7 +144,6 @@ class Home extends Component{
             likeSet:newLike
           };
         });
-        console.log(this.state.likeSet)
       }
     }
   }
@@ -180,14 +176,15 @@ class Home extends Component{
   getMediaInfo =  () => {
     let that = this;
     let url = `${constants.mediaIdUrl}&access_token=${sessionStorage.getItem('access-token')}`;
+    //Calling first API
     return fetch(url,{
       method:'GET',
     }).then((response) =>{
         return response.json();
     }).then((jsonResponse) =>{
       const mediaArray = jsonResponse.data;
-      console.log(mediaArray);
       const mediaInfo = []
+      //Calling second API with all the media Ids returned from First API call
     return  Promise.all(
           mediaArray.map(x => {
             return new Promise((resolve) => {
@@ -200,7 +197,6 @@ class Home extends Component{
                       response.json()
                           .then(media => {
                             mediaInfo.push(media)
-                            console.log(media)
                             resolve()
                           })
                     })
@@ -209,11 +205,11 @@ class Home extends Component{
           })
       )
           .then(() => {
-            console.log(mediaInfo);
             mediaInfo.forEach(media=>{
               const m = mediaArray.filter(x=>x.id===media.id);
               media['caption'] = m[0].caption;
               media['likes_count'] =2; // Hard coding the number of likes
+              //Extracting the hashtags
               let regex = /#(\w+)/g;
               media['hashtags'] =  media.caption.match(regex);
               media['hashtags'] =   media['hashtags']?media['hashtags'].join(' ') : ''
@@ -226,39 +222,37 @@ class Home extends Component{
           })
 
     }).catch((error) => {
-      console.log('error user data',error);
     });
   }
 
-  getMediaData = () => {
-    let that = this;
-    let url = `${constants.userMediaUrl}&access_token=${sessionStorage.getItem('access-token')}`;
-    return fetch(url,{
-      method:'GET',
-    }).then((response) =>{
-        return response.json();
-    }).then((jsonResponse) =>{
-      console.log(jsonResponse.data);
-      const media = jsonResponse.data;
-      const userData = {}
-      userData['profile_picture'] = profileImage ;
-
-      media.forEach(m=>{
-      m['username'] = m.username;
-      m['likes_count'] =2;
-        let regex = /#(\w+)/g;
-        m['hashtags'] =  m.caption.match(regex);
-        m['hashtags'] =   m['hashtags']?m['hashtags'].join(' ') : ''
-        m.caption  = m.caption.replace(/#([^\s]*)/gm, '');
-      })
-      that.setState({
-        data:jsonResponse.data,
-        filteredData:jsonResponse.data
-      });
-    }).catch((error) => {
-      console.log('error user data',error);
-    });
-  }
+  // getMediaData = () => {
+  //   let that = this;
+  //   let url = `${constants.userMediaUrl}&access_token=${sessionStorage.getItem('access-token')}`;
+  //   return fetch(url,{
+  //     method:'GET',
+  //   }).then((response) =>{
+  //       return response.json();
+  //   }).then((jsonResponse) =>{
+  //     const media = jsonResponse.data;
+  //     const userData = {}
+  //     userData['profile_picture'] = profileImage ;
+  //
+  //     media.forEach(m=>{
+  //     m['username'] = m.username;
+  //     m['likes_count'] =2;
+  //       let regex = /#(\w+)/g;
+  //       m['hashtags'] =  m.caption.match(regex);
+  //       m['hashtags'] =   m['hashtags']?m['hashtags'].join(' ') : ''
+  //       m.caption  = m.caption.replace(/#([^\s]*)/gm, '');
+  //     })
+  //     that.setState({
+  //       data:jsonResponse.data,
+  //       filteredData:jsonResponse.data
+  //     });
+  //   }).catch((error) => {
+  //     console.log('error user data',error);
+  //   });
+  // }
 
   logout = () => {
     sessionStorage.clear();
@@ -281,9 +275,8 @@ class HomeItem extends Component{
 
   render(){
     const {classes, item, comments} = this.props;
-
+//timestamo conversion
     let createdTime = new Date(item.timestamp);
-    // createdTime.setUTCSeconds(item.timestamp);
     let yyyy = createdTime.getFullYear();
     let mm = createdTime.getMonth() + 1 ;
     mm = mm>=10?mm:'0'+mm;
@@ -291,20 +284,8 @@ class HomeItem extends Component{
     let HH = createdTime.getHours() >=10 ?createdTime.getHours() : '0'+createdTime.getHours() ;
     let MM = createdTime.getMinutes()>=10?createdTime.getMinutes() : '0'+createdTime.getMinutes();
     let ss = createdTime.getSeconds()>=10?createdTime.getSeconds() : '0'+createdTime.getSeconds();
-
-    //let time =item.timestamp;
     let time = dd+"/"+mm+"/"+yyyy+" "+HH+":"+MM+":"+ss;
-    // let hashTags = item.tags.map(hash =>{
-    //   return "#"+hash;
-    // });
 
-
-
-
-  // item.caption = caption.join();
-  // console.log(item.caption);
-
-  //  console.log(item.hashtags)
 
     return(
       <div className="home-item-main-container">

@@ -70,6 +70,7 @@ class Profile extends Component {
             currentItem: null,
             likeSet:new Set(),
             comments:{},
+            isLiked: false
         }
     }
 
@@ -81,6 +82,7 @@ class Profile extends Component {
     getMediaInfo =  () => {
         let that = this;
         let url = `${constants.mediaIdUrl}&access_token=${sessionStorage.getItem('access-token')}`;
+        //calling first API
         return fetch(url,{
             method:'GET',
         }).then((response) =>{
@@ -88,6 +90,7 @@ class Profile extends Component {
         }).then((jsonResponse) =>{
             const mediaArray = jsonResponse.data;
             const mediaInfo = []
+            //Calling second Api in loop with all the ids returned by first API
             return  Promise.all(
                 mediaArray.map(x => {
                     return new Promise((resolve) => {
@@ -112,11 +115,13 @@ class Profile extends Component {
                     mediaInfo.forEach(media=>{
                         const m = mediaArray.filter(x=>x.id===media.id);
                         media['caption'] = m[0].caption;
-                        media['likes_count'] =2; // Hard coding the number of likes
+                        media['likes_count'] = 2; // Hard coding the number of likes
+                        //Extracting Hashtags
                         let regex = /#(\w+)/g;
                         media['hashtags'] =  media.caption.match(regex);
                         media['hashtags'] =   media['hashtags']?media['hashtags'].join(' ') : ''
                         media.caption  = media.caption.replace(/#([^\s]*)/gm, '');
+                        //Retrieving comments from Home page if any
                         if (sessionStorage.getItem(media.id+'comment') !== null) {
                             console.log(sessionStorage.getItem(media.id+'comment'));
                             comments[media.id] = JSON.parse(sessionStorage.getItem(media.id+'comment'));
@@ -142,52 +147,52 @@ class Profile extends Component {
             console.log('error user data',error);
         });
     }
-    getUserInfo = () => {
-        let that = this;
-        let url = `${constants.userMediaUrl}&access_token=${sessionStorage.getItem('access-token')}`;
-        return fetch(url, {
-            method: 'GET',
-        }).then((response) => {
-            return response.json();
-        }).then((jsonResponse) => {
-            that.setState({
-                profile_picture: profileImage,
-                username: jsonResponse.data[0].username,
-                full_name: 'UpGrad Education',
-                posts: jsonResponse.data.length,
-                follows: '10',
-                followed_by: '20',
-            });
-        }).catch((error) => {
-            console.log('error user data',error);
-        });
-    }
+    // getUserInfo = () => {
+    //     let that = this;
+    //     let url = `${constants.userMediaUrl}&access_token=${sessionStorage.getItem('access-token')}`;
+    //     return fetch(url, {
+    //         method: 'GET',
+    //     }).then((response) => {
+    //         return response.json();
+    //     }).then((jsonResponse) => {
+    //         that.setState({
+    //             profile_picture: profileImage,
+    //             username: jsonResponse.data[0].username,
+    //             full_name: 'UpGrad Education',
+    //             posts: jsonResponse.data.length,
+    //             follows: '10',
+    //             followed_by: '20',
+    //         });
+    //     }).catch((error) => {
+    //         console.log('error user data',error);
+    //     });
+    // }
 
-    getMediaData = () => {
-        let that = this;
-        let url = `${constants.userMediaUrl}&access_token=${sessionStorage.getItem('access-token')}`;
-        return fetch(url,{
-            method: 'GET',
-        }).then((response) => {
-            return response.json();
-        }).then((jsonResponse) => {
-            const comments ={};
-            const media = jsonResponse.data;
-            media.forEach(m=>{
-                m['username'] = m.username;
-                m['likes_count'] =2;
-                if (sessionStorage.getItem(m.id+'comment') !== null) {
-                    comments[m.id] = JSON.parse(sessionStorage.getItem(m.id+'comment'));
-                }
-            })
-            that.setState({
-                mediaData: jsonResponse.data,
-                comments:comments
-            });
-        }).catch((error) => {
-            console.log('error media data',error);
-        });
-    }
+    // getMediaData = () => {
+    //     let that = this;
+    //     let url = `${constants.userMediaUrl}&access_token=${sessionStorage.getItem('access-token')}`;
+    //     return fetch(url,{
+    //         method: 'GET',
+    //     }).then((response) => {
+    //         return response.json();
+    //     }).then((jsonResponse) => {
+    //         const comments ={};
+    //         const media = jsonResponse.data;
+    //         media.forEach(m=>{
+    //             m['username'] = m.username;
+    //             m['likes_count'] =2;
+    //             if (sessionStorage.getItem(m.id+'comment') !== null) {
+    //                 comments[m.id] = JSON.parse(sessionStorage.getItem(m.id+'comment'));
+    //             }
+    //         })
+    //         that.setState({
+    //             mediaData: jsonResponse.data,
+    //             comments:comments
+    //         });
+    //     }).catch((error) => {
+    //         console.log('error media data',error);
+    //     });
+    // }
 
     handleOpenEditModal = () => {
         this.setState({ editOpen: true });
@@ -241,6 +246,7 @@ class Profile extends Component {
                 this.setState(({likeSet}) => ({
                     likeSet:new Set(likeSet.add(id))
                 }))
+                console.log(JSON.stringify(this.state.likeSet));
             }else {
                 foundItem.likes_count--;
                 this.setState(({likeSet}) =>{
@@ -251,6 +257,7 @@ class Profile extends Component {
                         likeSet:newLike
                     };
                 });
+                console.log(JSON.stringify(this.state.likeSet));
             }
         }
     }
