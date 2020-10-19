@@ -74,9 +74,9 @@ class Profile extends Component {
     }
 
     componentDidMount() {
-        this.getUserInfo();
-        this.getMediaData();
-        // this.getMediaInfo()
+        // this.getUserInfo();
+        // this.getMediaData();
+        this.getMediaInfo()
     }
     getMediaInfo =  () => {
         let that = this;
